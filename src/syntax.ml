@@ -59,6 +59,7 @@ type kind = Sens
 
 (* Sensitivities *)
 type si =
+  | SiHole
   | SiInfty
   | SiConst of float
   (*  | SiConst of M.mpfr_float*)
@@ -79,6 +80,7 @@ let rec si_map n f si =
   | SiMult (x, y) -> SiMult (smf x, smf y)
   | SiDiv (x, y) -> SiDiv (smf x, smf y)
   | SiInfty -> SiInfty
+  | SiHole -> SiHole
   | SiLub (s1, s2) -> SiLub (smf s1, smf s2)
 
 (* Shifts all the variables greater or equal than o by n *)

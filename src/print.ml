@@ -126,6 +126,7 @@ let rec pp_si fmt s =
   | SiMult(si1, si2)       -> fprintf fmt "(%a * %a)" pp_si si1 pp_si si2
   | SiDiv(si1, si2)        -> fprintf fmt "(%a / %a)" pp_si si1 pp_si si2
   | SiInfty                -> fprintf fmt "%s" (u_sym Symbols.Inf)
+  | SiHole                 -> fprintf fmt "[]"
   | SiLub  (s1, s2)        -> fprintf fmt "(%a @<1>%s %a)" pp_si s1 (u_sym Symbols.Lub) pp_si s2
 
 

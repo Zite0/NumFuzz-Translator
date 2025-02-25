@@ -433,6 +433,7 @@ let kind_of (i : info) (si : si) : kind checker =
   let ck k = return k in
 
   (match si with
+  | SiHole
   | SiInfty       -> return Sens
   | SiConst _     -> return Sens
 

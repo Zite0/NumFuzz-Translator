@@ -184,6 +184,9 @@ module Simpl = struct
 					| SiConst si1'', SiConst si2'' -> SiConst ( si1'' +. si2'')
 					| _, SiInfty -> SiInfty
 					| SiInfty, _ -> SiInfty
+          | SiHole, SiHole -> SiHole
+          | SiHole, _ -> si2'
+          | _, SiHole -> si1'
 					| _, _ -> sis
 				end
 		| SiMult (si1,si2) ->
@@ -194,6 +197,9 @@ module Simpl = struct
 					| SiConst si1'', SiConst si2'' -> SiConst ( si1'' *. si2'')
 					| _, SiInfty -> SiInfty
 					| SiInfty, _ -> SiInfty
+          | SiHole, SiHole -> SiHole
+          | SiHole, _ -> si2'
+          | _, SiHole -> si1'
 					| _, _ -> sis
 				end
 	 | SiDiv (si1,si2) ->
@@ -203,6 +209,9 @@ module Simpl = struct
 					| SiConst si1'', SiConst si2'' -> SiConst ( si1'' /. si2'')
 					| SiInfty, SiInfty -> si_one
 					| SiConst _, SiInfty -> si_zero
+          | SiHole, SiHole -> SiHole
+          | SiHole, _ -> si2'
+          | _, SiHole -> si1'
 					| _, _ -> sis
 				end
 	 | SiLub (si1,si2) ->
@@ -212,6 +221,9 @@ module Simpl = struct
 				 | SiConst si1'', SiConst si2'' -> SiConst (max si1'' si2'')
 				 | _, SiInfty -> SiInfty
 				 | SiInfty, _ -> SiInfty
+         | SiHole, SiHole -> SiHole
+         | SiHole, _ -> si2'
+         | _, SiHole -> si1'
 				 | _, _ -> sis
 			end
 	 | _ -> sis
@@ -228,6 +240,7 @@ module Optimize = struct
   let rec is_standard (si : si) : bool =
     match si with
     | SiInfty
+    | SiHole
     | SiConst _
     | SiVar   _ -> true
     | SiAdd  (si1, si2)
