@@ -72,7 +72,7 @@ let translate_op (op : op) : fpop =
   returns a list with the types of the arguments of [t], provided that [t]
   is an abstraction. Otherwise, the empty list is returned. *)
 let rec unwind_types (t : term) =
-  match t with TmAbs (_, _, ty, next) -> ty :: unwind_types next | _ -> []
+  match t with TmAbs (_, _, (_,ty), next) -> ty :: unwind_types next | _ -> []
 
 (** [check_function ty] is true if [t] is a comonadic type that wraps 
   a function type, i.e. lollipop. *)
@@ -207,7 +207,7 @@ For example, calling [get_arguments] on an expression of the form [lambda x. lam
 returns [(\[x;y\],e)]. *)
 and get_arguments (prog : term) : argument list * term =
   match prog with
-  | TmAbs (_, b_info, ty, t) ->
+  | TmAbs (_, b_info, (_,ty), t) ->
       let dim = arg_of_typ ty in
       let curr_arg =
         if dim = None then ASymbol b_info.b_name

@@ -117,7 +117,7 @@ type ty =
   | TyTensor of ty * ty
   | TyAmpersand of ty * ty
   (* Functional type *)
-  | TyLollipop of ty * ty
+  | TyLollipop of (si * ty) * ty
   (* Monadic type *)
   | TyMonad of si * ty
   (* Comonadic type *)
@@ -135,8 +135,8 @@ let rec ty_map n fv fsi ty =
   | TyAmpersand (ty1, ty2) ->
       TyAmpersand (ty_map n fv fsi ty1, ty_map n fv fsi ty2)
   (* *)
-  | TyLollipop (ty1, ty2) ->
-      TyLollipop (ty_map n fv fsi ty1, ty_map n fv fsi ty2)
+  | TyLollipop ((si, ty1), ty2) ->
+      TyLollipop ((fsi n si, ty_map n fv fsi ty1), ty_map n fv fsi ty2)
   | TyMonad (si1, ty1) -> TyMonad (fsi n si1, ty_map n fv fsi ty1)
   | TyBang (si1, ty1) -> TyBang (fsi n si1, ty_map n fv fsi ty1)
 
@@ -199,7 +199,7 @@ type term =
   | TmRet of info * term
   (* Regular Abstraction and Applicacion *)
   | TmApp of info * term * term
-  | TmAbs of info * binder_info * ty * term
+  | TmAbs of info * binder_info * (si * ty) * term
   (* & constructor and eliminator *)
   | TmAmpersand of info * term * term
   | TmAmp1 of info * term
@@ -224,6 +224,7 @@ let map_prim_ty n f p =
 let rec map_term_ty_aux n ft fsi tm =
   let tf n = map_term_ty_aux n ft fsi in
   let opf = Option.map (ft n) in
+  let psf = (fun (si, ty) -> (fsi n si, ft n ty))      in
   match tm with
   | TmVar (i, v) -> TmVar (i, v)
   | TmPrim (i, p) -> TmPrim (i, map_prim_ty n ft p)
@@ -240,7 +241,7 @@ let rec map_term_ty_aux n ft fsi tm =
   | TmUnionCase (i, tm, bi_l, tm_l, bi_r, tm_r) ->
       TmUnionCase (i, tf n tm, bi_l, tf n tm_l, bi_r, tf n tm_r)
   (*  *)
-  | TmAbs (i, bi, ty, tm) -> TmAbs (i, bi, ft n ty, tf n tm)
+  | TmAbs (i, bi, ty_si, tm) -> TmAbs (i, bi, psf ty_si, tf n tm)
   | TmApp (i, tm1, tm2) -> TmApp (i, tf n tm1, tf n tm2)
   (*  *)
   | TmAmpersand (i, tm1, tm2) -> TmAmpersand (i, tf n tm1, tf n tm2)

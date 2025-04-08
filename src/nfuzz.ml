@@ -122,7 +122,7 @@ let parse file =
 (* Main must be fun *)
 let check_main_type ty =
   match ty with
-  | TyLollipop (TyPrim _, _) -> ()
+  | TyLollipop ((_,TyPrim _), _) -> ()
   | _ ->
       main_error dp
         "The type of the program must the db_source -o[?] fuzzy string"
