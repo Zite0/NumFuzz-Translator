@@ -28,20 +28,26 @@ let existing_tyvar fi id ctx =
 let extend_var id ctx =
   Ctx.extend_var id dummy_ty ctx
 
+(* Remove bang type and return sensitivity and underlying type. Otherwise,
+    return SiHole sensitivity and unchanged type *)
+
+let get_sens ty = match ty with 
+    TyBang (six, tyx) -> (six, tyx)
+    | _ -> (SiHole, ty)
 
 (* Create a new binder *)
 let nb_var   n = {b_name = n; b_type = BiVar;  b_size = -1; b_prim = false;}
 
 let rec list_to_term l body = match l with
     []                    -> body
-  | (ty, n, i) :: tml -> TmAbs (i, nb_var n, ty, list_to_term tml body)
+  | (ty, n, i) :: tml -> TmAbs (i, nb_var n, get_sens ty, list_to_term tml body)
 
 let from_args_to_term arg_list body = list_to_term arg_list body
 
 let rec list_to_type l ret_ty = match l with
-    []                        -> TyLollipop (TyPrim PrimUnit, ret_ty) (* Not yet allowed constant function *)
-  | (ty, _n, _i) :: []    -> TyLollipop (ty, ret_ty)
-  | (ty, _n, _i) :: tyl   -> TyLollipop (ty, list_to_type tyl ret_ty)
+    []                        -> TyLollipop ((SiConst 1.0, TyPrim PrimUnit), ret_ty) (* Not yet allowed constant function *)
+  | (ty, _n, _i) :: []    -> TyLollipop (get_sens ty, ret_ty)
+  | (ty, _n, _i) :: tyl   -> TyLollipop (get_sens ty, list_to_type tyl ret_ty)
 
 let from_args_to_type arg_list oty = match oty with
   | Some ty -> Some (list_to_type arg_list ty)
@@ -268,7 +274,7 @@ Val:
       { fun ctx -> TmRet($1, $2 ctx) }
   | FUN LPAREN ID ColType RPAREN LBRACE Term RBRACE
       {
-        fun ctx -> TmAbs($1, nb_var $3.v, $4 ctx, $7 (extend_var $3.v ctx ))
+        fun ctx -> TmAbs($1, nb_var $3.v, get_sens ($4 ctx), $7 (extend_var $3.v ctx ))
       }
   | STRINGV
       { fun _cx -> TmPrim($1.i, PrimTString $1.v) }
@@ -330,7 +336,7 @@ ComplexType :
   | AType AMP ComplexType
       { fun ctx -> TyAmpersand($1 ctx, $3 ctx) }
   | AType LOLLIPOP ComplexType
-      { fun ctx -> TyLollipop($1 ctx, $3 ctx) }
+      { fun ctx -> TyLollipop(get_sens ($1 ctx), $3 ctx) }
   | AType
       { $1 }
 
