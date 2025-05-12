@@ -126,7 +126,7 @@ let rec pp_si fmt s =
   | SiMult(si1, si2)       -> fprintf fmt "(%a * %a)" pp_si si1 pp_si si2
   | SiDiv(si1, si2)        -> fprintf fmt "(%a / %a)" pp_si si1 pp_si si2
   | SiInfty                -> fprintf fmt "%s" (u_sym Symbols.Inf)
-  | SiHole                 -> fprintf fmt ""
+  | SiHole                 -> fprintf fmt "[]"
   | SiLub  (s1, s2)        -> fprintf fmt "(%a @<1>%s %a)" pp_si s1 (u_sym Symbols.Lub) pp_si s2
 
 
@@ -187,7 +187,7 @@ let rec pp_type ppf ty = match ty with
   | TyAmpersand(ty1, ty2)   -> fprintf ppf "(%a & @[<h>%a@])" pp_type ty1 pp_type ty2
   (* Funs *) (*
   | TyLollipop(ty1, ty2) -> fprintf ppf "(@[<hov>%a %a@ %a@])" pp_type ty1 pp_arrow (SiConst (M.make_from_float 1.0)) pp_type ty2 *)
-  | TyLollipop((si, ty1), ty2) -> fprintf ppf "(@[<hov>%a %a@ %a@])" pp_type (TyBang(si, ty1)) pp_arrow (SiConst ( 1.0)) pp_type ty2
+  | TyLollipop(ty1, ty2) -> fprintf ppf "(@[<hov>%a %a@ %a@])" pp_type ty1 pp_arrow (SiConst ( 1.0)) pp_type ty2
   | TyMonad(si,ty1) -> fprintf ppf "(M[%a] @[<h>%a@])" pp_si si pp_type ty1
   | TyBang(si,ty1) -> fprintf ppf "(@<1>%s[%a] @[<h>%a@])" (u_sym Symbols.Bang)  pp_si si pp_type ty1
 
@@ -320,7 +320,7 @@ let rec pp_term ppf t =
   | TmBoxDest (_, x, tm, term)      -> fprintf ppf "@[<v>let \n[%a\n] : = @[%a@];@,@[%a@]@]" pp_binfo x pp_term tm pp_term term
 
   (* Abstraction and Application *)
-  | TmAbs(_, a_n, (_, ty_a), tm) ->
+  | TmAbs(_, a_n, ty_a, tm) ->
     fprintf ppf "@<1>%s (%a%a) {@\n@[<hov 1> %a@]@\n}"
       (u_sym Symbols.Lambda) pp_binfo a_n pp_type ty_a pp_term tm
 

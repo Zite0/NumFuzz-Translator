@@ -213,10 +213,9 @@ module TypeSub = struct
       check_type_sub i tyl1 tyr1 >>
       check_type_sub i tyl2 tyr2
 
-    | TyLollipop((sl, tyl1), tyl2), TyLollipop((sr, tyr1), tyr2) ->
+    | TyLollipop(tyl1, tyl2), TyLollipop(tyr1, tyr2) ->
       check_type_sub i tyr1 tyl1 >>
-      check_type_sub i tyl2 tyr2 >>
-      check_sens_leq i sl sr
+      check_type_sub i tyl2 tyr2
 
     | TyMonad(sl, tyl), TyMonad(sr, tyr) ->
       check_type_sub i tyl tyr >>
@@ -253,10 +252,9 @@ module TypeSub = struct
         check_type_eq i tyl1 tyr1 >>
         check_type_eq i tyl2 tyr2
 
-      | TyLollipop((sl, tyl1), tyl2), TyLollipop((sr, tyr1), tyr2) ->
+      | TyLollipop(tyl1, tyl2), TyLollipop(tyr1, tyr2) ->
         check_type_eq i tyr1 tyl1 >>
-        check_type_eq i tyl2 tyr2 >>
-        check_sens_eq i sl sr
+        check_type_eq i tyl2 tyr2
 
       | TyBang(sl, tyl), TyBang(sr, tyr) ->
         check_type_eq i tyl tyr >>
@@ -297,7 +295,7 @@ module TypeSub = struct
      systematically instead of the current hack *)
   let infer_tyapp_very_simple i ty ty_arg =
     match ty with
-    | TyLollipop((_,TyVar v), tyb) -> (* TODO: CHECK WHETHER WE NEED TO DO SMTHNG WITH THIS SI (currently _) *)
+    | TyLollipop(TyVar v, tyb) ->
       if v.v_index = 0 then
         let nt = ty_subst 0 ty_arg tyb in
         ty_debug i "==> [%3d] Inferring type application from @[%a@] to @[%a@]" !ty_seq Print.pp_type tyb Print.pp_type nt;
@@ -311,8 +309,8 @@ module TypeSub = struct
     match ty_arr with
     (* Here we do inference of type applications *)
 
-    | TyLollipop((sib, tya), tyb) ->
-      check_type_sub i ty_arg tya >> return (Some sib, tyb)
+    | TyLollipop(tya, tyb) ->
+      check_type_sub i ty_arg tya >> return (tyb)
     | _                        -> fail i @@ CannotApply(ty_arr, ty_arg)
 
   let check_fuzz_shape i ty = fail i @@ WrongShape (ty, "fuzzy")
@@ -322,19 +320,18 @@ module TypeSub = struct
     | TyTensor(ty1, ty2) -> return (ty1, ty2)
     | _                  -> fail i @@ WrongShape (ty, "tensor")
 
-  (* TODO: CHECK THESE HARD-CODED SENSITIVITIES *)
   let check_op_shape op =
     let num  = (TyPrim PrimNum) in
     let ty_bool = (TyUnion(TyPrim PrimUnit, TyPrim PrimUnit)) in
     match op with
-    | AddOp  -> return (TyLollipop((si_one, (TyAmpersand(num, num))),num))
-    | MulOp  -> return (TyLollipop((si_one, (TyTensor(num, num))),num))
-    | SqrtOp -> return (TyLollipop((si_one, (TyBang(si_hlf, num))),num))
-    | DivOp  -> return (TyLollipop((si_one, (TyTensor(num, num))),num))
+    | AddOp  -> return (TyLollipop((TyAmpersand(num, num)),num))
+    | MulOp  -> return (TyLollipop((TyTensor(num, num)),num))
+    | SqrtOp -> return (TyLollipop((TyBang(si_hlf, num)),num))
+    | DivOp  -> return (TyLollipop((TyTensor(num, num)),num))
     | GtOp   -> 
-        return (TyLollipop((si_zero, (TyTensor(TyBang(si_infty,num),TyBang(si_infty,num)))),ty_bool))
+        return (TyLollipop((TyTensor(TyBang(si_infty,num),TyBang(si_infty,num))),ty_bool))
     | EqOp   -> 
-        return (TyLollipop((si_zero, (TyTensor(TyBang(si_infty,num),TyBang(si_infty,num)))),ty_bool))
+        return (TyLollipop((TyTensor(TyBang(si_infty,num),TyBang(si_infty,num))),ty_bool))
 
 let check_is_num' ty : bool =
   match ty with
@@ -512,7 +509,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
   (* Abstraction and Application *)
 
   (* λ (x : tya_x) { tm }        *)
-  | TmAbs(i, b_x, (sia_x, tya_x), tm) ->
+  | TmAbs(i, b_x, tya_x, tm) ->
 
     with_extended_ctx i b_x.b_name tya_x (type_of tm) >>= fun (ty_tm, si_x, sis) ->
 
@@ -523,9 +520,9 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
       let si_x3  = Simpl.si_simpl si_x2 in
       let si_x4  = Simpl.si_simpl_compute si_x3 in
-      check_sens_leq i (si_x4) (sia_x)          >>
+      check_sens_eq i (si_one) si_x4         >>
 
-      return (TyLollipop ((sia_x, tya_x), ty_tm), sis)
+      return (TyLollipop (tya_x, ty_tm), sis)
 
   (* tm1 β → α, tm2: β *)
   | TmApp(i, tm1, tm2)                             ->
@@ -534,10 +531,10 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
     type_of tm2 >>= fun (ty2, sis2) ->
 
     (* Checks that ty1 has shape β → α, and that ty2 is and instance of β.
-       Returns sensitivity β in ty1 and α of ty1 *)
-    check_app i ty1 ty2 >>= fun (sib, tya) ->
+       Returns α of ty1 *)
+    check_app i ty1 ty2 >>= fun (tya) ->
 
-    return (tya, add_sens sis1 (scale_sens sib sis2))
+    return (tya, add_sens sis1 sis2)
 
   (* Standard let-binding *)
   (* x : oty_x = tm_x ; e *)
@@ -696,7 +693,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
     type_of v >>= fun (ty_v, sis_v) ->
 
     check_op_shape fop >>= fun (ty_op) ->
-    check_fun_shape i ty_op >>= fun((_, ty_arg),ty_ret) ->
+    check_fun_shape i ty_op >>= fun(ty_arg,ty_ret) ->
 
     check_type_eq i ty_v ty_arg >>
 
@@ -733,15 +730,8 @@ let pp_tyerr ppf s = match s with
   | Internal s            -> fprintf ppf "EEE [%3d] Internal error: %s" !ty_seq s
 
 (* Equivalent to run *)
-let get_type program = 
+let get_type program =
   match type_of program Ctx.empty_context with
   | Right (ty, _sis) -> ty
   | Left e ->
     typing_error_pp e.i pp_tyerr e.v
-
-(* let get_type program = 
-  match type_of program Ctx.empty_context with
-  | Right (ty, _sis) -> (match ty with TyLollipop ((si, t1), t2) -> TyLollipop((si,TyBang(si, t1)), t2) | _ -> ty)
-  | Left e ->
-    typing_error_pp e.i pp_tyerr e.v *)
-    
