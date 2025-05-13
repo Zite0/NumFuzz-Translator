@@ -32,7 +32,7 @@ let extend_var id ctx =
     return SiHole sensitivity and unchanged type *)
 
 let add_bang ty = match ty with 
-    TyBang _ -> ty
+    | TyBang _ -> ty
     | _ -> TyBang (SiHole, ty)
 
 (* Create a new binder *)

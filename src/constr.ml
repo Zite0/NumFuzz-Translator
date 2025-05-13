@@ -99,6 +99,8 @@ module Decide = struct
 
   let is_infty si =   si = SiInfty
 
+  let is_hole si = si = SiHole
+
   let decide_leq_constant sil sir =
         match sil, sir with
 				| SiConst a, SiConst b ->
@@ -111,6 +113,10 @@ module Decide = struct
     else if is_zero sil then
       Some true
     else if is_infty sir then
+      Some true
+    else if is_hole sir then 
+      Some true
+    else if is_hole sil then
       Some true
     else
       decide_leq_constant sil sir

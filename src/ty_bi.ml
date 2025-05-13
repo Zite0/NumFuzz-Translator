@@ -144,7 +144,7 @@ let zeros (n : int) : bsi list =
 let singleton (n : int) (v : var_info) : bsi list =
   let rec aux n l =
     if n = 0 then l
-    else let si = if n = v.v_index + 1 then Some si_one else None in
+    else let si = if n = v.v_index + 1 then Some SiHole else None in
          aux (n - 1) (si :: l) in
   aux n []
 
@@ -196,6 +196,7 @@ module TypeSub = struct
   let rec check_type_sub (i : info) (ty_1 : ty) (ty_2 : ty) : unit checker =
     let fail = fail i @@ NotSubtype (ty_1, ty_2) in
     match ty_1, ty_2 with
+    | TyPrim PrimNum, TyBang (SiHole, TyPrim PrimNum) -> return ()
     | TyVar v1, TyVar v2   ->
       if v1 = v2 then return () else fail
 
@@ -225,6 +226,14 @@ module TypeSub = struct
       check_type_sub i tyl tyr >>
       check_sens_leq i sl sr
 
+    | TyAmpersand (tyl1, tyl2), TyBang(sr, (TyAmpersand(tyr1, tyr2))) -> 
+      check_type_sub i tyl1 (TyBang (sr, tyr1)) >>
+      check_type_sub i tyl2 (TyBang (sr, tyr2)) 
+
+    | TyTensor (tyl1, tyl2), TyBang(sr, (TyTensor(tyr1, tyr2))) -> 
+      check_type_sub i tyl1 (TyBang (sr, tyr1)) >>
+      check_type_sub i tyl2 (TyBang (sr, tyr2)) 
+  
     | _, _ -> fail
 
     let check_type_sub' i (sty : ty)  (oty_x : ty option) =
@@ -423,6 +432,10 @@ let lub_sens (bsis1 : bsi list) (bsis2 : bsi list) : bsi list =
 let bsi_sens (bsis : bsi list) : si list =
   List.map si_of_bsi bsis
 
+let remove_bang (t : ty) : ty = match t with 
+  | TyBang (_, t') -> t' 
+  | _ -> t
+
 (**********************************************************************)
 (* Main typing routines                                               *)
 (**********************************************************************)
@@ -520,7 +533,9 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
       let si_x3  = Simpl.si_simpl si_x2 in
       let si_x4  = Simpl.si_simpl_compute si_x3 in
-      check_sens_eq i (si_one) si_x4         >>
+ 
+      let si_arg = (match tya_x with TyBang (s,_) -> s | _ -> SiInfty) in
+      check_sens_leq i si_x4 si_arg         >>
 
       return (TyLollipop (tya_x, ty_tm), sis)
 
@@ -532,9 +547,15 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
     (* Checks that ty1 has shape β → α, and that ty2 is and instance of β.
        Returns α of ty1 *)
-    check_app i ty1 ty2 >>= fun (tya) ->
+    check_app i ty1 ty2 >>= fun (tya) -> 
+    
+    let arg_sens = (match ty1 with 
+      TyLollipop ((TyBang (s, _)), _) -> Some s 
+      | _ -> None)
+    
+    in
 
-    return (tya, add_sens sis1 sis2)
+    return (tya, add_sens sis1 (scale_sens arg_sens sis2))
 
   (* Standard let-binding *)
   (* x : oty_x = tm_x ; e *)
@@ -695,7 +716,13 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
     check_op_shape fop >>= fun (ty_op) ->
     check_fun_shape i ty_op >>= fun(ty_arg,ty_ret) ->
 
-    check_type_eq i ty_v ty_arg >>
+    (* No longer require explicit deconstructing of Bang types *)
+
+    let ty_v' = (match fop with 
+      | SqrtOp -> ty_v 
+      | _ -> remove_bang ty_v) in 
+
+    check_type_eq i ty_v' ty_arg >>
 
     return (ty_ret, sis_v)
 
