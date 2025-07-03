@@ -2,19 +2,18 @@
 #include "float_ops/addfp64.fz"
 #include "float_ops/divfp64.fz"
 
-function sqrt_add1 (x : ![0.5]num) 
+function sqrt_add1 (x : num) 
 {
-  let [x'] = x;
-  sd2 = addfp64 <x',1.0>;
+  sd2 = addfp64 <x,1.0>;
   let d2 = sd2;
-  sqrtfp64 [d2{0.5}]
+  sqrtfp64 d2
 }
 
 function sqrt_add (x : num) : M[9.993e-16]num 
 {
-  sd1 = sqrt_add1 [x{0.5}];
+  sd1 = sqrt_add1 x;
   let d1 = sd1;
-  sd2 = sqrtfp64 [x{0.5}];
+  sd2 = sqrtfp64 x;
   let d2 = sd2;
   sd = addfp64 <d1,d2>;
   let d  = sd;

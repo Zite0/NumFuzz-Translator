@@ -7,7 +7,7 @@ function one_by_sqrtxx
 {
   sz = mulfp64 (x,x);
   let z = sz;
-  sy = sqrtfp64 ([z{0.5}]);
+  sy = sqrtfp64 z;
   let y = sy;
   divfp64 (1.0,y)
 }

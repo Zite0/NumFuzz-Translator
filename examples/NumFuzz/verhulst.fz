@@ -3,9 +3,8 @@
 #include "float_ops/addfp64.fz"
 
 function verhulst
- (x': ![2.0]num) 
+ (x: num) 
 {
- let [x] = x';
  s1 = divfp64 (x,1.11);
  let s2 = s1;
  s3 = addfp64 <1.0, s2>;

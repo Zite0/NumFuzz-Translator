@@ -12,7 +12,7 @@ function hypot
   let y2 = s2;
   s3 = addfp64<x2,y2>;
   let y3 = s3;
-  sqrtfp64 [y3{0.5}]
+  sqrtfp64 y3
 }
 
 hypot
