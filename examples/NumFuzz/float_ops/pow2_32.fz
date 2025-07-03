@@ -2,6 +2,5 @@
 
 function pow2_32 (x : ![2.0]num) 
 {
-  let [x'] = x;
-  mulfp32(x',x')
+  mulfp32(x,x)
 }

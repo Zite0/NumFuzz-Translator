@@ -1,0 +1,8 @@
+#include "pow2_32.fz"
+
+function pow4_32 (x : ![4.0]num) 
+{
+  z = pow2_32 x;
+  let z1 = z;
+  pow2_32 z1
+}

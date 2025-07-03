@@ -2,6 +2,5 @@
 
 function pow2_16 (x : ![2.0]num) 
 {
-  let [x'] = x;
-  mulfp16(x',x')
+  mulfp16(x,x)
 }
