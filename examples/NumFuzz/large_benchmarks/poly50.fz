@@ -2,7 +2,7 @@
 #include "../float_ops/addfp64.fz"
 #include "folds/fold51.fz"
 function poly50
-(x' : ![1275.0]num)
+(x : num)
 (a :
 (num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,(num,num)))))))))))))))))))))))))))))))))))))))))))))))))))
 {
@@ -57,7 +57,6 @@ let (a46, as47)= as46;
 let (a47, as48)= as47;
 let (a48, as49)= as48;
 let (a49, a50)= as49;
-let [x] = x'; 
 q0= mulfp64 (x,x);
 let q0' = q0;
 q1 = mulfp64 (q0',x);
@@ -2608,6 +2607,6 @@ x2' = mulfp64 (a2,q1224');
 let x2 = x2';
 x1' = mulfp64 (a1,x);
 let x1 = x1';
-fold51 [g{50.0}] (a0,(x1,(x2,(x3,(x4,(x5,(x6,(x7,(x8,(x9,(x10,(x11,(x12,(x13,(x14,(x15,(x16,(x17,(x18,(x19,(x20,(x21,(x22,(x23,(x24,(x25,(x26,(x27,(x28,(x29,(x30,(x31,(x32,(x33,(x34,(x35,(x36,(x37,(x38,(x39,(x40,(x41,(x42,(x43,(x44,(x45,(x46,(x47,(x48,(x49,x50))))))))))))))))))))))))))))))))))))))))))))))))))
+fold51 (a0,(x1,(x2,(x3,(x4,(x5,(x6,(x7,(x8,(x9,(x10,(x11,(x12,(x13,(x14,(x15,(x16,(x17,(x18,(x19,(x20,(x21,(x22,(x23,(x24,(x25,(x26,(x27,(x28,(x29,(x30,(x31,(x32,(x33,(x34,(x35,(x36,(x37,(x38,(x39,(x40,(x41,(x42,(x43,(x44,(x45,(x46,(x47,(x48,(x49,x50)))))))))))))))))))))))))))))))))))))))))))))))))) g
 }
 poly50

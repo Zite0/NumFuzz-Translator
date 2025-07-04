@@ -3,7 +3,7 @@
 
 
 function mat_mul_64
-  (A : ![64.0] (
+  (A : (
     (num, (num, (num, (num, (num, (num, (num, (num, 
     (num, (num, (num, (num, (num, (num, (num, (num, 
     (num, (num, (num, (num, (num, (num, (num, (num, 
@@ -517,7 +517,7 @@ function mat_mul_64
     (num, (num, (num, (num, (num, (num, (num, (num, 
     (num, (num, (num, (num, (num, (num, (num, num))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
- (B : ![64.0] (
+ (B : (
     (num, (num, (num, (num, (num, (num, (num, (num, 
     (num, (num, (num, (num, (num, (num, (num, (num, 
     (num, (num, (num, (num, (num, (num, (num, (num, 
@@ -1034,8 +1034,7 @@ function mat_mul_64
 /* Start function body */
 {
 /* rows of A */
-    let [A'] = A;
-    let (A0, AS1) = A';
+    let (A0, AS1) = A;
     let (A1, AS2) = AS1;
     let (A2, AS3) = AS2;
     let (A3, AS4) = AS3;
@@ -1100,8 +1099,7 @@ function mat_mul_64
     let (A62, A63)  = AS62;
 
 /* columns of B */
-    let [B'] = B;
-    let (B0, BS1) = B';
+    let (B0, BS1) = B;
     let (B1, BS2) = BS1;
     let (B2, BS3) = BS2;
     let (B3, BS4) = BS3;

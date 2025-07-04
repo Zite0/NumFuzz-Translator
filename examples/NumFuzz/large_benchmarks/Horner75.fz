@@ -11,11 +11,10 @@ function Horner75
   (num, (num, (num, (num, (num, (num, (num, (num, (num, (num, 
   (num, (num, (num, (num, (num, (num, num))))))))))))))))))))))))))))
     )))))))))))))))))))))))))))))))))))))))))))))))
-  (x : ![75.0]num) 
+  (x : num) 
 {
-  let [x'] = x;
-  g = fun (a: num) {fun (b: num) {FMA64 b x' a}};
-  fold76 as [g{75.0}]
+  g = fun (a: num) {fun (b: num) {FMA64 b x a}};
+  fold76 as g
 }
 
 Horner75

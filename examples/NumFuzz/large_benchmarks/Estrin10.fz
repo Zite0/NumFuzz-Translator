@@ -1,13 +1,10 @@
 #include "../float_ops/addfp64.fz"
-#include "../float_ops/pow4fp.fz"
-#include "../float_ops/pow8fp.fz"
+#include "../float_ops/pow8_64.fz"
 
 function Estrin10   
     (as : (num, (num, (num, (num, (num, (num, (num, (num, (num, (num,         num)))))))))))    
-    (x' : ![23.0]num) 
+    (x : num) 
 {
-    let [x] = x';
-
     let (a0,as1) = as;
     let (a1,as2) = as1;
     let (a2,as3) = as2;
@@ -20,7 +17,7 @@ function Estrin10
     let (a9,a10) = as9;
     
     t1 = mulfp64(a1,x);
-    t3 = mulfp(64a3,x);
+    t3 = mulfp64(a3,x);
     t5 = mulfp64(a5,x);
     t7 = mulfp64(a7,x);
     t9 = mulfp64(a9,x);
@@ -64,9 +61,9 @@ function Estrin10
     u2 = addfp64<z8',s2'>;
     let u2' = u2;
 
-    r4 =  pow4fp [x{4.0}];
+    r4 =  pow4_64 x;
     let r4' = r4;    
-    r8 =  pow8fp [x{8.0}];
+    r8 =  pow8_64 x;
     let r8' = r8;    
 
     v00 = mulfp64(u1',r4');

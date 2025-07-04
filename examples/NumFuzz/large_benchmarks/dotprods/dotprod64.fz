@@ -23,7 +23,7 @@ function dotprod64
           ))))))))))))))))))))))))))
 {
  v = combine64 a b  ;
- v' = map64_prod v [mulfp64{64.0}] ;
+ v' = map64_prod v mulfp64 ;
 
 let (a0', as1) = v';
 let (a1', as2)= as1;
@@ -158,5 +158,5 @@ let a63 = a63';
  ))))))))))))))))))));
 
  g = fun (x: num) {fun (y: num) {addfp64 <x,y>}};
- fold64 v1 [g{63.0}] 
+ fold64 v1 g 
 }

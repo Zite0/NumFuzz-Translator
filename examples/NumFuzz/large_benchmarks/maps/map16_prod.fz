@@ -1,9 +1,7 @@
 function map16_prod
     (as : ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), ((num,num), (num,num)))))))))))))))))
-    (c' : ![16.0]((num,num) -o M[eps64_up]num))
+    (c : ((![1.0](num,num)) -o M[eps64_up]num))
 {
-    let [c] = c'; 
-
     let (a0, as1) = as;
     let (a1, as2) = as1;
     let (a2, as3) = as2;
@@ -40,5 +38,3 @@ function map16_prod
   (s0,(s1,(s2,(s3,(s4,(s5,(s6,(s7,(s8,(s9,(s10,(s11,(s12,(s13,(s14,s15)))))))))))))))
 
 }
-
-

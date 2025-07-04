@@ -14,11 +14,10 @@ function Horner100
   (num, (num, (num, (num, (num , num, (num, (num, (num, (num, 
   (num,num)))))))))))))))))))))))))))))))))))))))))))))))))))
   ))))))))))))))))))))))))))))))))))))))))))))))))
-  (x : ![100.0]num) 
+  (x : num) 
 {
-  let [x'] = x;
-  g = fun (a: num) {fun (b: num) {FMA64 b x' a}};
-  fold101 as [g{100.0}]
+  g = fun (a: num) {fun (b: num) {FMA64 b x a}};
+  fold101 as g
 }
 
 Horner100

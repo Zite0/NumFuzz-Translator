@@ -1,18 +1,16 @@
 #include "dotprods/dotprod4.fz"
 function mat_mul4
-(A : ![4.0]
+(A : 
 ( ((num,(num,(num,num))),((num,(num,(num,num))),((num,(num,(num,num))),(num,(num,(num,num)))))) ))
-(B : ![4.0]
+(B : 
 ( ((num,(num,(num,num))),((num,(num,(num,num))),((num,(num,(num,num))),(num,(num,(num,num)))))) ))
 {
 /*rows of A*/
-let [A'] = A;
-let (A0, AS1) = A';
+let (A0, AS1) = A;
 let (A1, AS2)= AS1;
 let (A2, A3)= AS2;
 /*columns of B*/
-let [B'] = B;
-let (B0, BS1) = B';
+let (B0, BS1) = B;
 let (B1, BS2)= BS1;
 let (B2, B3)= BS2;
 /* cij is the dot product of the ith row of A and the jth column of B */

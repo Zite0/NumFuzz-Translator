@@ -21,10 +21,8 @@ function map64_prod
     ((num, num), ((num, num), ((num, num), (num, num))
     )))))))))))))))))))))))))))))))))))))))))))))))))))
     ))))))))))))
-    (c' : ![64.0]((num,num) -o M[eps64_up]num))
+    (c : ((![1.0](num,num)) -o M[eps64_up]num))
 {
-    let [c] = c'; 
-
     let (a0, as1) = as;
     let (a1, as2) = as1;
     let (a2, as3) = as2;
