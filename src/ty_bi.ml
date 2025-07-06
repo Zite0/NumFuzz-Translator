@@ -115,6 +115,7 @@ let check_sens_eq  i (sil : si) (sir : si) : unit checker =
   else
     fail i @@ SensErrorEq(sil, sir)
 
+
 (* Constants *)
 let si_zero  = SiConst  0.0
 let si_one   = SiConst  1.0
@@ -320,18 +321,19 @@ module TypeSub = struct
     | TyTensor(ty1, ty2) -> return (ty1, ty2)
     | _                  -> fail i @@ WrongShape (ty, "tensor")
 
+  (* Given operator, returns the type of the operator and the sensitivity of the operator to its argument *)
   let check_op_shape op =
     let num  = (TyPrim PrimNum) in
     let ty_bool = (TyUnion(TyPrim PrimUnit, TyPrim PrimUnit)) in
     match op with
-    | AddOp  -> return (TyLollipop(TyBang(si_one, (TyAmpersand(num, num))),num))
-    | MulOp  -> return (TyLollipop(TyBang(si_one, (TyTensor(num, num))),num))
-    | SqrtOp -> return (TyLollipop((TyBang(si_hlf, num)),num))
-    | DivOp  -> return (TyLollipop(TyBang(si_one, (TyTensor(num, num))),num))
+    | AddOp  -> return ((TyLollipop(TyBang(si_one, (TyAmpersand(num, num))),num)), si_one)
+    | MulOp  -> return ((TyLollipop(TyBang(si_one, (TyTensor(num, num))),num)), si_one)
+    | SqrtOp -> return ((TyLollipop(TyBang(si_hlf, num),num)), si_hlf)
+    | DivOp  -> return ((TyLollipop(TyBang(si_one, (TyTensor(num, num))),num)), si_one)
     | GtOp   -> 
-        return (TyLollipop((TyTensor(TyBang(si_infty,num),TyBang(si_infty,num))),ty_bool))
+        return ((TyLollipop(TyBang(si_infty,(TyTensor(num,num))),ty_bool)), si_infty)
     | EqOp   -> 
-        return (TyLollipop((TyTensor(TyBang(si_infty,num),TyBang(si_infty,num))),ty_bool))
+        return ((TyLollipop(TyBang(si_infty,(TyTensor(num,num))),ty_bool)), si_infty)
 
 let check_is_num' ty : bool =
   match ty with
@@ -713,15 +715,13 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
     type_of v >>= fun (ty_v, sis_v) ->
 
-    check_op_shape fop >>= fun (ty_op) ->
+    check_op_shape fop >>= fun (ty_op, si_op) ->
     check_fun_shape i ty_op >>= fun(_,ty_ret) ->
 
     check_app i ty_op ty_v >>
     (* check_type_eq i ty_v ty_arg >> *)
 
-    let arg_sens = Some (match fop with SqrtOp -> si_hlf | _ -> si_one) in 
-
-    return (ty_ret, scale_sens arg_sens sis_v)  
+    return (ty_ret, scale_sens (Some si_op) sis_v)  
 
   ) >>= fun (ty, sis) ->
 
