@@ -9,25 +9,23 @@
 */
 
 function hammarling 
-        (x' : ![inf]num) (t' : ![inf]num) (s : num) {
-    let [x] = x';
-    let [t] = t';
-    b = gt ([x{inf}],[t{inf}]); 
+        (x : num) (t : num) (s : num) {
+    b = gt (x,t); 
     if b then {
         s0 = divfp64 (t,x);
         let s1 = s0;
-        s2 = pow2_64 [s1{2.0}];
+        s2 = pow2_64 s1;
         let s3 = s2;
         s4 = mulfp64 (s,s3);
         let s5 = s4;
-        addfp64 (|1.0,s5|) 
+        addfp64 <1.0,s5> 
     }
     else {
         s0 = divfp64 (t,x);
         let s1 = s0;
-        s2 = pow2_64 [s1{2.0}];
+        s2 = pow2_64 s1;
         let s3 = s2;
-        addfp64 (|s,s3|) 
+        addfp64 <s,s3> 
     }
 }
 

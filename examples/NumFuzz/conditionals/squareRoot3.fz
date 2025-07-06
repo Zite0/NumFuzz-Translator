@@ -2,18 +2,17 @@
 #include "../float_ops/sqrtfp64.fz"
 #include "../float_ops/mulfp64.fz"
 
-function squareRoot3 (x : ![inf]num) {
-    let [x'] = x;
-    b = gt ([x'{inf}],[0.00001{inf}]); 
+function squareRoot3 (x : num) {
+    b = gt (x,0.00001); 
     if b then { 
-        s = mulfp64 (0.5,x');
+        s = mulfp64 (0.5,x);
         let s' = s;
-        addfp64 (|s',1.0|) 
+        addfp64 <s',1.0> 
     }
     else { 
-        s = addfp64 (|1.0,x'|);
+        s = addfp64 <1.0,x>;
         let s' = s;
-        sqrtfp64 [s'{0.5}]
+        sqrtfp64 s'
     }
 }
 
