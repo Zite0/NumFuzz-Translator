@@ -2,11 +2,10 @@
 #include "../float_ops/addfp32.fz"
 #include "../float_ops/divfp64.fz"
 
-function x_plus_one_by_x (x : ![2.0]num)
+function x_plus_one_by_x (x : num)
 {
-  let [x2] = x;
-  y = addfp32 <x2, 1.0>;
+  y = addfp32 <x, 1.0>;
   let y2 = y;
-  divfp64 (x2,y2)
+  divfp64 (x,y2)
 }
 x_plus_one_by_x
